@@ -29,6 +29,7 @@ Split_files () {
     dir_dst="$2"
     file_count=0
     output_file=""
+    file_basename="${file_src%.*}"
 
     # Read the input file line by line
     while IFS= read -r line
@@ -39,7 +40,7 @@ Split_files () {
             # Increment file counter
             file_count=$((file_count + 1))
             # Create a new file for the new event
-            output_file="$dir_dst/${file_src}_$file_count.pgn"
+            output_file="$dir_dst/${file_basename}_$file_count.pgn"
             echo "Saved game to $output_file";
         fi
 
