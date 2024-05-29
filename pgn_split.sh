@@ -56,7 +56,6 @@ Split_files () {
 }
 
 
-# Main function
 Main () {
     # Check the number of arguments
     if test "$#" -ne 2;
@@ -65,6 +64,7 @@ Main () {
         exit 1   
     fi
 
+    # run
     verify_PNG "$1"
     verify_diractory "$2"
     Split_files "$1" "$2"
