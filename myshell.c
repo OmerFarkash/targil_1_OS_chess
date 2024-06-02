@@ -24,7 +24,7 @@ void add_to_history(const char *cmd) {
 // print the history array
 void print_history() {
     for (int i = 0; i < history_count; i++) {
-        printf("%d %s\n", i + 1, history[i]);
+        printf("%s\n", history[i]);
     }
 }
 
