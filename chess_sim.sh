@@ -1,6 +1,11 @@
 game_string=""
+moves_amount=0
+current_move=0
+moves_done=0
 declare -A board
 declare -A boards
+what_next="Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: "
+declare -A col_map=( ["a"]=1 ["b"]=2 ["c"]=3 ["d"]=4 ["e"]=5 ["f"]=6 ["g"]=7 ["h"]=8 )
 
 split_pgn () {
 
@@ -25,7 +30,8 @@ split_pgn () {
 convert_to_uci () {
     python3 parse_moves.py "$game_string" > moves.txt
     game_string=$(<moves.txt)
-    rm moves.txt
+    moves_amount=$(wc -w < moves.txt)
+    # rm moves.txt
 }
 
 initialize_board () {
@@ -53,20 +59,140 @@ copy_board () {
     done    
 }
 
+
 # Function to print a specific board state
 print_board () {
-    local index=$1
+    echo "Move $current_move/$moves_amount"
     # Print the chessboard with column labels
     echo "  a b c d e f g h"
     for row in {7..0}; do
         echo -n "$((row+1)) "
         for col in {0..7}; do
-            echo -n "${boards[$index,$row,$col]} "
+            echo -n "${boards[$current_move,$row,$col]} "
         done
         echo "$((row+1))"
     done
     echo "  a b c d e f g h"
+    echo
 }
+
+# Function to handle a move
+handle_move () {
+    # extract the move from the game string
+    move=${game_string%% *}
+    # remove the move from the game string
+    game_string=${game_string#* }
+    
+    # extract the move details
+    from_col=${move:0:1}
+    from_row=${move:1:1}
+    to_col=${move:2:1}
+    to_row=${move:3:1}
+    
+    from_col=${col_map[$from_col]}
+    to_col=${col_map[$to_col]}
+
+    # adapt the board state
+    if [[ ${#move} == 5 ]]
+    then
+        # promotion
+        promotion=${move:4:1}
+        
+        board[$to_row,$to_col]=$promotion
+        board[$from_row,$from_col]="."
+    else
+        # on passant
+        if [[ ${board[$from_row,$from_col]} == "p" ]] || [[ ${board[$from_row,$from_col]} == "P" ]]
+        then
+            if [[ ${board[$to_row,$to_col]} == "." ]] && [[ $to_col != $from_col ]]
+            then
+                board[$to_row,$from_col]="."
+            fi
+        fi
+        # castling
+        # to complete
+
+        # move the pieces
+        board[$to_row,$to_col]=${board[$from_row,$from_col]}
+        board[$from_row,$from_col]="."
+    fi   
+}
+
+# Function to move to the next step
+next_step () {
+    # if the boards[current_move] is not set
+    if [[ $1 == "0" ]] && [[ $current_move -gt $moves_done ]]
+    then
+        handle_move
+        
+        # copy the board state to the boards array[current_move]
+        copy_board $current_move
+
+        moves_done=$((moves_done+1))
+        print_board
+
+    elif [[ $1 == "0" ]]
+    then
+        # if the boards[current_move] is set - do nothing
+        print_board          
+    else
+        # finish the game
+        while [[ $current_move -lt $moves_amount ]]
+        do
+            handle_move
+            copy_board $current_move
+            current_move=$((current_move+1))
+        done
+        moves_done=$((moves_amount))
+        print_board
+    fi
+}
+
+
+# Function to navigate the board
+navigate_board () {
+    while true
+    do
+        echo $what_next
+        read -n 1 -s key
+        case $key in
+            d)
+                if (( current_move == moves_amount ))
+                then
+                    echo "No more moves available."
+                else
+                    current_move=$((current_move+1))
+                    next_step "0"
+                fi
+                ;;
+            a)
+                if (( current_move == 0 ))
+                then
+                    print_board
+                else
+                    current_move=$((current_move-1))
+                    print_board
+                fi 
+                ;;
+            w)
+                current_move=0
+                print_board
+                ;;
+            s)
+                current_move=$((moves_done))
+                next_step "1"                
+                ;;
+            q)
+                exit 0
+                ;;
+            *)
+                echo "Invalid key pressed: $key"   
+                ;;
+        esac
+    done
+}
+
+
 
 # Main
 main () {
@@ -91,9 +217,8 @@ main () {
     # Initialize the board
     initialize_board
     copy_board 0
-    print_board 0
+    print_board
+    navigate_board
 }
 
 main "$@"
-
-
