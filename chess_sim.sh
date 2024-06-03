@@ -127,7 +127,7 @@ handle_move () {
 # Function to move to the next step
 next_step () {
     # if the boards[current_move] is not set
-    if [[ $1 == "0" ]] && [[ $current_move -ge $moves_done ]]
+    if [[ $1 == "0" ]] && [[ $current_move -gt $moves_done ]]
     then
         handle_move
         
@@ -187,7 +187,6 @@ navigate_board () {
                 ;;
             s)
                 current_move=$((moves_done+1))
-                
                 next_step "1"                
                 ;;
             q)
