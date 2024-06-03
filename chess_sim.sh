@@ -5,7 +5,8 @@ moves_done=0
 declare -A board
 declare -A boards
 what_next="Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: "
-declare -A col_map=( ["a"]=1 ["b"]=2 ["c"]=3 ["d"]=4 ["e"]=5 ["f"]=6 ["g"]=7 ["h"]=8 )
+declare -A col_map=( ["a"]=0 ["b"]=1 ["c"]=2 ["d"]=3 ["e"]=4 ["f"]=5 ["g"]=6 ["h"]=7 )
+declare -A row_map=( ["8"]=0 ["7"]=1 ["6"]=2 ["5"]=3 ["4"]=4 ["3"]=5 ["2"]=6 ["1"]=7 )
 
 split_pgn () {
 
@@ -63,14 +64,17 @@ copy_board () {
 # Function to print a specific board state
 print_board () {
     echo "Move $current_move/$moves_amount"
+    local i=8
     # Print the chessboard with column labels
     echo "  a b c d e f g h"
-    for row in {7..0}; do
-        echo -n "$((row+1)) "
-        for col in {0..7}; do
+    for row in {0..7}
+    do
+        echo -n "$((i-row)) "
+        for col in {0..7}
+        do
             echo -n "${boards[$current_move,$row,$col]} "
         done
-        echo "$((row+1))"
+        echo "$((i-row))"
     done
     echo "  a b c d e f g h"
     echo
@@ -91,6 +95,8 @@ handle_move () {
     
     from_col=${col_map[$from_col]}
     to_col=${col_map[$to_col]}
+    from_row=${row_map[$from_row]}
+    to_row=${row_map[$to_row]}
 
     # adapt the board state
     if [[ ${#move} == 5 ]]
@@ -121,7 +127,7 @@ handle_move () {
 # Function to move to the next step
 next_step () {
     # if the boards[current_move] is not set
-    if [[ $1 == "0" ]] && [[ $current_move -gt $moves_done ]]
+    if [[ $1 == "0" ]] && [[ $current_move -ge $moves_done ]]
     then
         handle_move
         
@@ -137,13 +143,14 @@ next_step () {
         print_board          
     else
         # finish the game
-        while [[ $current_move -lt $moves_amount ]]
+        while [[ $current_move -le $moves_amount ]]
         do
             handle_move
             copy_board $current_move
             current_move=$((current_move+1))
         done
         moves_done=$((moves_amount))
+        current_move=$((moves_amount))
         print_board
     fi
 }
@@ -179,7 +186,8 @@ navigate_board () {
                 print_board
                 ;;
             s)
-                current_move=$((moves_done))
+                current_move=$((moves_done+1))
+                
                 next_step "1"                
                 ;;
             q)
