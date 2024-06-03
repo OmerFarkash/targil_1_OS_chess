@@ -30,10 +30,8 @@ split_pgn () {
 }
 
 convert_to_uci () {
-    python3 parse_moves.py "$game_string" > moves.txt
-    game_string=$(<moves.txt)
-    moves_amount=$(wc -w < moves.txt)
-    rm moves.txt
+    game_string=$(echo "$game_string" | python3 parse_moves.py "$game_string")
+    moves_amount=$(echo "$game_string" | wc -w)
 }
 
 initialize_board () {
