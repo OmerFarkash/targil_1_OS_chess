@@ -5,6 +5,7 @@ moves_done=0
 declare -A board
 declare -A boards
 what_next="Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: "
+# Map the columns and rows
 declare -A col_map=( ["a"]=0 ["b"]=1 ["c"]=2 ["d"]=3 ["e"]=4 ["f"]=5 ["g"]=6 ["h"]=7 )
 declare -A row_map=( ["8"]=0 ["7"]=1 ["6"]=2 ["5"]=3 ["4"]=4 ["3"]=5 ["2"]=6 ["1"]=7 )
 
@@ -32,7 +33,7 @@ convert_to_uci () {
     python3 parse_moves.py "$game_string" > moves.txt
     game_string=$(<moves.txt)
     moves_amount=$(wc -w < moves.txt)
-    # rm moves.txt
+    rm moves.txt
 }
 
 initialize_board () {
@@ -93,6 +94,7 @@ handle_move () {
     to_col=${move:2:1}
     to_row=${move:3:1}
     
+    # convert the move details to the board indexes
     from_col=${col_map[$from_col]}
     to_col=${col_map[$to_col]}
     from_row=${row_map[$from_row]}
@@ -116,7 +118,29 @@ handle_move () {
             fi
         fi
         # castling
-        # to complete
+        if [[ ${board[$from_row,$from_col]} == "k" ]] && [[ $from_row -eq 0 ]] && [[ $from_col -eq 4 ]]
+        then
+            if [[ $to_col -eq 6 ]]
+            then
+                board[0,5]="r"
+                board[0,7]="."
+            elif [[ $to_col -eq 2 ]]
+            then
+                board[0,3]="r"
+                board[0,0]="."
+            fi
+        elif [[ ${board[$from_row,$from_col]} == "K" ]] && [[ $from_row -eq 7 ]] && [[ $from_col -eq 4 ]]
+        then
+            if [[ $to_col -eq 6 ]]
+            then
+                board[7,5]="R"
+                board[7,7]="."
+            elif [[ $to_col -eq 2 ]]
+            then
+                board[7,3]="R"
+                board[7,0]="."
+            fi
+        fi
 
         # move the pieces
         board[$to_row,$to_col]=${board[$from_row,$from_col]}
