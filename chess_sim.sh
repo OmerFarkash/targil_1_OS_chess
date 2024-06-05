@@ -76,7 +76,6 @@ print_board () {
         echo "$((i-row))"
     done
     echo "  a b c d e f g h"
-    echo
 }
 
 # Function to handle a move
