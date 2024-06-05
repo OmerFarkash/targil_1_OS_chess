@@ -214,6 +214,8 @@ navigate_board () {
                     next_step "1"                
                     ;;
                 q)
+                    echo "Exiting."
+                    echo "End of game."
                     exit 0
                     ;;
                 *)
