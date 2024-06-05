@@ -112,7 +112,7 @@ handle_move () {
         then
             if [[ ${board[$to_row,$to_col]} == "." ]] && [[ $to_col != $from_col ]]
             then
-                board[$to_row,$from_col]="."
+                board[$from_row,$to_col]="."
             fi
         fi
         # castling
@@ -184,41 +184,46 @@ navigate_board () {
     do
         echo $what_next
         read -n 1 -s key
-        case $key in
-            d)
-                if (( current_move == moves_amount ))
-                then
-                    echo "No more moves available."
-                else
-                    current_move=$((current_move+1))
-                    next_step "0"
-                fi
-                ;;
-            a)
-                if (( current_move == 0 ))
-                then
+        read -n 1 -s enter
+        if [[ $enter == "" ]]
+        then
+            case $key in
+                d)
+                    if (( current_move == moves_amount ))
+                    then
+                        echo "No more moves available."
+                    else
+                        current_move=$((current_move+1))
+                        next_step "0"
+                    fi
+                    ;;
+                a)
+                    if (( current_move == 0 ))
+                    then
+                        print_board
+                    else
+                        current_move=$((current_move-1))
+                        print_board
+                    fi 
+                    ;;
+                w)
+                    current_move=0
                     print_board
-                else
-                    current_move=$((current_move-1))
-                    print_board
-                fi 
-                ;;
-            w)
-                current_move=0
-                print_board
-                ;;
-            s)
-                current_move=$((moves_done+1))
-                next_step "1"                
-                ;;
-            q)
-                exit 0
-                ;;
-            *)
-                echo "Invalid key pressed: $key"   
-                ;;
-        esac
+                    ;;
+                s)
+                    current_move=$((moves_done+1))
+                    next_step "1"                
+                    ;;
+                q)
+                    exit 0
+                    ;;
+                *)
+                    echo "Invalid key pressed: $key"   
+                    ;;
+            esac
+        fi
     done
+    
 }
 
 
