@@ -1,3 +1,6 @@
+# Omer farkash
+# I.D 211466362
+
 game_string=""
 moves_amount=0
 current_move=0
