@@ -106,7 +106,7 @@ handle_move () {
     then
         # promotion
         promotion=${move:4:1}
-        if [$current_move % 2 -eq 1]
+        if [$((current_move % 2)) -eq 1]
         then
             promotion=${piece_map[$promotion]}
         fi
