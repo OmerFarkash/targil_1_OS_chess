@@ -33,7 +33,6 @@ Split_files () {
     file_name=$(basename "$file_src" )
     extracted_name=$(echo "$file_name" | sed 's/^.*\///')
     extracted_name="${extracted_name%.*}"
-    echo "$extracted_name"
 
     # Read the input file line by line
     while IFS= read -r line

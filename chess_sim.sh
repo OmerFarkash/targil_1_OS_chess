@@ -11,6 +11,7 @@ what_next="Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 
 # Map the columns and rows
 declare -A col_map=( ["a"]=0 ["b"]=1 ["c"]=2 ["d"]=3 ["e"]=4 ["f"]=5 ["g"]=6 ["h"]=7 )
 declare -A row_map=( ["8"]=0 ["7"]=1 ["6"]=2 ["5"]=3 ["4"]=4 ["3"]=5 ["2"]=6 ["1"]=7 )
+declare -A piece_map=( ["r"]="R" ["n"]="N" ["b"]="B" ["q"]="Q" )
 
 split_pgn () {
 
@@ -105,6 +106,10 @@ handle_move () {
     then
         # promotion
         promotion=${move:4:1}
+        if [$current_move % 2 -eq 1]
+        then
+            promotion=${piece_map[$promotion]}
+        fi
         
         board[$to_row,$to_col]=$promotion
         board[$from_row,$from_col]="."
